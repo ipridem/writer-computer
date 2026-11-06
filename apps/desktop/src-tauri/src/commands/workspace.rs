@@ -429,7 +429,7 @@ fn prepare_workspace_state(
     path: &str,
 ) -> Result<WorkspaceInfo, AppError> {
     let root = canonicalize_workspace_root(path)?;
-    let canonical_path = root.to_string_lossy().to_string();
+    let canonical_path = crate::state::ipc_path(&root);
 
     let name = root
         .file_name()
@@ -517,7 +517,7 @@ fn run_workspace_bootstrap(
     {
         return;
     }
-    let root_string = root.to_string_lossy().into_owned();
+    let root_string = crate::state::ipc_path(&root);
     let _ = handle.emit_to(
         label.clone(),
         "fs:directory-changed",

@@ -128,7 +128,7 @@ fn fuzzy_search_from(
                 .collect();
 
             Some(SearchResult {
-                path: file.path.to_string_lossy().to_string(),
+                path: crate::state::ipc_path(&file.path),
                 filename: file.name.clone(),
                 relative_path: file.relative_path.clone(),
                 score,
@@ -283,7 +283,7 @@ pub async fn find_file_by_name(
 ) -> Result<Option<String>, AppError> {
     tauri::async_runtime::spawn_blocking(move || {
         Ok(find_file_by_name_impl(Path::new(&root), &file_name)
-            .map(|path| path.to_string_lossy().to_string()))
+            .map(|path| crate::state::ipc_path(&path)))
     })
     .await
     .map_err(|e| AppError::Io(e.to_string()))?

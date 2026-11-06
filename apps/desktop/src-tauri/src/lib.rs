@@ -113,7 +113,7 @@ pub(crate) fn open_new_workspace_window(
     // duplicate windows and the watcher's canonical workspace_root matches
     // the pending-open record.
     let workspace = dunce::canonicalize(&raw_workspace).map_err(|e| AppError::Io(e.to_string()))?;
-    let workspace_str = workspace.to_string_lossy().to_string();
+    let workspace_str = crate::state::ipc_path(&workspace);
 
     if let Some(existing_label) = app.state::<AppState>().find_by_workspace(&workspace) {
         if let Some(window) = app.get_webview_window(&existing_label) {
@@ -169,7 +169,7 @@ pub(crate) fn open_standalone_file_window(
     init_window_settings(app, &state)?;
     state.set_startup_open(PendingOpenPayload {
         workspace: None,
-        file: Some(file.to_string_lossy().to_string()),
+        file: Some(crate::state::ipc_path(&file)),
     });
 
     build_secondary_window(app, label)

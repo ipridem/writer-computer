@@ -282,7 +282,7 @@ pub fn read_directory_impl(
             if directory_is_sidebar_visible(&entry_path, state)? {
                 dirs.push(DirEntry {
                     name,
-                    path: entry_path.to_string_lossy().to_string(),
+                    path: crate::state::ipc_path(&entry_path),
                     is_dir: true,
                     is_markdown: false,
                     modified_at: modified_time(&entry_path),
@@ -296,7 +296,7 @@ pub fn read_directory_impl(
                 let title = extract_title(&entry_path);
                 files.push(DirEntry {
                     name,
-                    path: entry_path.to_string_lossy().to_string(),
+                    path: crate::state::ipc_path(&entry_path),
                     is_dir: false,
                     is_markdown: true,
                     modified_at: modified_time(&entry_path),
@@ -395,7 +395,7 @@ pub(crate) fn markdown_file_entry(path: &Path) -> Option<DirEntry> {
     let name = path.file_name()?.to_string_lossy().to_string();
     Some(DirEntry {
         name,
-        path: path.to_string_lossy().to_string(),
+        path: crate::state::ipc_path(path),
         is_dir: false,
         is_markdown: true,
         modified_at: modified_time(path),

@@ -118,10 +118,7 @@ pub fn record_recent_file(path: String, app: tauri::AppHandle) -> Result<(), App
     if !is_markdown_file(&file) {
         return Ok(());
     }
-    let canonical = dunce::canonicalize(&file)
-        .unwrap_or(file)
-        .to_string_lossy()
-        .to_string();
+    let canonical = crate::state::ipc_path(&dunce::canonicalize(&file).unwrap_or(file));
 
     let state = app.state::<AppState>();
     let _guard = state.recent_files_lock.lock();

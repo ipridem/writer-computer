@@ -75,16 +75,23 @@ pub struct IndexedFile {
     pub modified_at: u64,
 }
 
-/// `path` relative to `root` with `/` separators on every platform. The
-/// frontend writes it into markdown links and wiki links, where a Windows `\`
-/// would be read as an escape.
-pub fn relative_slash_path(path: &Path, root: &Path) -> String {
-    let relative = path.strip_prefix(root).unwrap_or(path).to_string_lossy();
+/// A path as the frontend sees it: `/` separators on every platform. The
+/// frontend joins, splits and compares paths with `/` (as on macOS); Windows
+/// accepts `C:/Users/...` everywhere, and `Path` equality in Rust already
+/// treats both separators alike. Every path sent over IPC goes through here.
+pub fn ipc_path(path: &Path) -> String {
+    let path = path.to_string_lossy();
     if cfg!(windows) {
-        relative.replace('\\', "/")
+        path.replace('\\', "/")
     } else {
-        relative.into_owned()
+        path.into_owned()
     }
+}
+
+/// `path` relative to `root` in IPC form. The frontend also writes it into
+/// markdown links and wiki links, where a Windows `\` would be an escape.
+pub fn relative_slash_path(path: &Path, root: &Path) -> String {
+    ipc_path(path.strip_prefix(root).unwrap_or(path))
 }
 
 pub type WorkspaceRuntimeDrop = (
@@ -476,6 +483,15 @@ mod tests {
         let root = Path::new("notes");
         let file = root.join("drafts").join("chapter one.md");
         assert_eq!(relative_slash_path(&file, root), "drafts/chapter one.md");
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn ipc_path_uses_forward_slashes_on_windows() {
+        assert_eq!(
+            ipc_path(Path::new(r"C:\Users\me\My Notes\ünïcödé.md")),
+            "C:/Users/me/My Notes/ünïcödé.md"
+        );
     }
 
     #[test]

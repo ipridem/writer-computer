@@ -72,7 +72,7 @@ fn classify(path: &Path) -> Result<PendingOpenPayload, OpenTargetError> {
     if metadata.is_dir() {
         let canonical = dunce::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
         return Ok(PendingOpenPayload {
-            workspace: Some(canonical.to_string_lossy().to_string()),
+            workspace: Some(crate::state::ipc_path(&canonical)),
             file: None,
         });
     }
@@ -81,7 +81,7 @@ fn classify(path: &Path) -> Result<PendingOpenPayload, OpenTargetError> {
         let canonical_file = dunce::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
         return Ok(PendingOpenPayload {
             workspace: None,
-            file: Some(canonical_file.to_string_lossy().to_string()),
+            file: Some(crate::state::ipc_path(&canonical_file)),
         });
     }
 
@@ -106,7 +106,7 @@ mod tests {
         assert!(payload.file.is_none());
         assert_eq!(
             payload.workspace.unwrap(),
-            dunce::canonicalize(dir.path()).unwrap().to_string_lossy()
+            crate::state::ipc_path(&dunce::canonicalize(dir.path()).unwrap())
         );
     }
 
@@ -123,7 +123,7 @@ mod tests {
         );
         assert_eq!(
             payload.file.unwrap(),
-            dunce::canonicalize(&file).unwrap().to_string_lossy()
+            crate::state::ipc_path(&dunce::canonicalize(&file).unwrap())
         );
     }
 

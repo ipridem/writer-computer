@@ -63,7 +63,7 @@ pub fn save_clipboard_image_impl(
 
     Ok(ImageSaveResult {
         relative_path,
-        absolute_path: abs_path.to_string_lossy().to_string(),
+        absolute_path: crate::state::ipc_path(&abs_path),
     })
 }
 
