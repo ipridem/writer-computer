@@ -173,7 +173,7 @@ function WorkspaceLayout({ showWelcome }: { showWelcome: boolean }) {
             />
           )}
 
-          <div className="relative min-w-0 flex-1 bg-bg">
+          <div data-content-surface className="relative min-w-0 flex-1 bg-bg">
             {showWelcome ? <WelcomeScreen /> : <EditorArea />}
           </div>
         </div>

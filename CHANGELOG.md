@@ -2,7 +2,7 @@
 
 ## 2026-11-06
 
-- On Windows, Writer windows use the native title bar (with the window name and the minimise, maximise and close buttons) and the Mica backdrop, which follows Writer's light or dark setting. The top bar no longer leaves a gap on the left for the macOS window buttons. macOS is unchanged.
+- On Windows, Writer windows use the native title bar (with the window name and the minimise, maximise and close buttons) and the Mica backdrop, which follows Writer's light or dark setting. As in other Windows 11 apps, Mica shows through the sidebar and the tab bar while the note sits on its own surface, which still follows the Translucency setting. The top bar no longer leaves a gap on the left for the macOS window buttons. macOS is unchanged.
 
 ## 2026-10-28
 

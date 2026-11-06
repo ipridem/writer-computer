@@ -142,6 +142,37 @@
   --chrome-leading-inset: 12px;
 }
 
+/* Windows 11 app style: Mica shows straight through the sidebar and the top
+   (tab) row, and the note sits on its own surface below that row. The surface
+   uses the combined opacity of the two --bg layers it had before (body + pane),
+   so the editor looks as dense as on macOS and still follows Translucency. */
+:root[data-platform="windows"] {
+  background-color: transparent;
+}
+
+:root[data-platform="windows"] [data-content-surface] {
+  --content-surface: color-mix(
+    in srgb,
+    var(--bg-base) calc((1 - (1 - var(--bg-opacity)) * (1 - var(--bg-opacity))) * 100%),
+    transparent
+  );
+  --chrome-row-height: calc(var(--chrome-control-height) + var(--chrome-control-padding) * 2);
+  background: linear-gradient(
+    to bottom,
+    transparent var(--chrome-row-height),
+    var(--content-surface) var(--chrome-row-height)
+  );
+}
+
+/* The welcome screen has no tab row, so its surface runs the full height. */
+:root[data-platform="windows"] [data-content-surface]:has(> [data-welcome]) {
+  background: var(--content-surface);
+}
+
+:root[data-platform="windows"] [data-welcome] {
+  background: transparent;
+}
+
 /* Light mode: settings/theme cards rely on their border alone — a tinted fill
    reads as a heavy block on a light surface. Inputs also need a lighter fill
    since dark-on-light overlays read denser than light-on-dark at the same
