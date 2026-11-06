@@ -214,12 +214,17 @@ export function getParentDir(path: string): string {
   return normalized.slice(0, lastSlash);
 }
 
+/** True for `/abs/path` and Windows `C:\path` or `C:/path`. */
+export function isAbsoluteLocalPath(path: string): boolean {
+  return path.startsWith("/") || WINDOWS_ABSOLUTE_PATH.test(path);
+}
+
 export function resolveImagePath(imageSrc: string, markdownDir: string): string {
   const normalizedSrc = normalizeMarkdownDestination(imageSrc);
   if (normalizedSrc.startsWith("http://") || normalizedSrc.startsWith("https://")) {
     return normalizedSrc;
   }
   const localSrc = decodeLinkPath(normalizedSrc);
-  if (localSrc.startsWith("/")) return localSrc;
+  if (isAbsoluteLocalPath(localSrc)) return localSrc;
   return `${markdownDir.replace(/\/$/, "")}/${localSrc}`;
 }

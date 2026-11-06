@@ -16,6 +16,10 @@ describe("resolveImagePath", () => {
     expect(resolveImagePath("/absolute/path.png", "/workspace")).toBe("/absolute/path.png");
   });
 
+  test("returns Windows drive paths unchanged", () => {
+    expect(resolveImagePath("C:/Users/me/img.png", "C:/notes")).toBe("C:/Users/me/img.png");
+  });
+
   test("returns URLs unchanged", () => {
     expect(resolveImagePath("https://example.com/img.png", "/workspace")).toBe(
       "https://example.com/img.png",
