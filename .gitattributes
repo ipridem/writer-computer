@@ -1,0 +1,3 @@
+# Keep LF in the working tree on every platform (Git for Windows defaults to
+# core.autocrlf=true, which makes `vp check` flag every file).
+* text=auto eol=lf
