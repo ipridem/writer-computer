@@ -150,8 +150,7 @@ fn validate_workspace_launch_root(path: &Path) -> Result<PathBuf, AppError> {
     if !path.is_dir() {
         return Err(AppError::NotFound(path.to_string_lossy().to_string()));
     }
-    path.canonicalize()
-        .map_err(|error| AppError::Io(error.to_string()))
+    dunce::canonicalize(path).map_err(|error| AppError::Io(error.to_string()))
 }
 
 fn validate_terminal_target(
@@ -421,9 +420,7 @@ pub(crate) fn canonicalize_workspace_root(path: &str) -> Result<PathBuf, AppErro
     if !raw_root.exists() || !raw_root.is_dir() {
         return Err(AppError::NotFound(path.to_string()));
     }
-    raw_root
-        .canonicalize()
-        .map_err(|e| AppError::Io(e.to_string()))
+    dunce::canonicalize(&raw_root).map_err(|e| AppError::Io(e.to_string()))
 }
 
 fn prepare_workspace_state(
@@ -790,9 +787,7 @@ pub(crate) fn watch_standalone_file_impl(
     if !raw.is_file() {
         return Err(AppError::NotFound(path.to_string()));
     }
-    let file = raw
-        .canonicalize()
-        .map_err(|e| AppError::Io(e.to_string()))?;
+    let file = dunce::canonicalize(&raw).map_err(|e| AppError::Io(e.to_string()))?;
 
     let state = app.state::<AppState>().get_or_create(label);
     let epoch = state.workspace_epoch.fetch_add(1, Ordering::SeqCst) + 1;
@@ -948,7 +943,18 @@ mod tests {
         let raw = dir.path().to_string_lossy().to_string();
         let canonical = canonicalize_workspace_root(&raw).unwrap();
         assert!(canonical.is_absolute());
-        assert_eq!(canonical, std::fs::canonicalize(&raw).unwrap());
+        assert_eq!(canonical, dunce::canonicalize(&raw).unwrap());
+    }
+
+    /// `std::fs::canonicalize` returns `\\?\C:\...` on Windows, which the
+    /// frontend can't join with `/` and which made the same file appear twice
+    /// in recents and sessions.
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn canonicalize_drops_windows_verbatim_prefix() {
+        let dir = TempDir::new().unwrap();
+        let canonical = canonicalize_workspace_root(&dir.path().to_string_lossy()).unwrap();
+        assert!(!canonical.to_string_lossy().starts_with(r"\\?\"));
     }
 
     #[test]
@@ -1084,12 +1090,12 @@ mod tests {
         let workspace = TempDir::new().unwrap();
         let nested = workspace.path().join("drafts").join("chapter one");
         std::fs::create_dir_all(&nested).unwrap();
-        let root = workspace.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(workspace.path()).unwrap();
 
         assert_eq!(validate_terminal_target(&root, None).unwrap(), root);
         assert_eq!(
             validate_terminal_target(&root, Some(&nested)).unwrap(),
-            nested.canonicalize().unwrap()
+            dunce::canonicalize(&nested).unwrap()
         );
     }
 
@@ -1099,7 +1105,7 @@ mod tests {
         let sibling = TempDir::new().unwrap();
         let file = workspace.path().join("note.md");
         std::fs::write(&file, "# Note").unwrap();
-        let root = workspace.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(workspace.path()).unwrap();
 
         assert!(matches!(
             validate_terminal_target(&root, Some(&file)).unwrap_err(),
@@ -1129,11 +1135,11 @@ mod tests {
         let outside = TempDir::new().unwrap();
         let external_link = workspace.path().join("external-link");
         symlink(outside.path(), &external_link).unwrap();
-        let root = workspace.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(workspace.path()).unwrap();
 
         assert_eq!(
             validate_terminal_target(&root, Some(&internal_link)).unwrap(),
-            nested.canonicalize().unwrap()
+            dunce::canonicalize(&nested).unwrap()
         );
         assert!(matches!(
             validate_terminal_target(&root, Some(&external_link)).unwrap_err(),
@@ -1149,7 +1155,7 @@ mod tests {
         let parent = TempDir::new().unwrap();
         let root_path = parent.path().join("workspace");
         std::fs::create_dir(&root_path).unwrap();
-        let captured_root = root_path.canonicalize().unwrap();
+        let captured_root = dunce::canonicalize(&root_path).unwrap();
         std::fs::rename(&root_path, parent.path().join("moved-workspace")).unwrap();
         let outside = TempDir::new().unwrap();
         symlink(outside.path(), &root_path).unwrap();
@@ -1169,7 +1175,7 @@ mod tests {
         let root_path = parent.path().join("workspace");
         let selected_path = root_path.join("drafts");
         std::fs::create_dir_all(&selected_path).unwrap();
-        let root = root_path.canonicalize().unwrap();
+        let root = dunce::canonicalize(&root_path).unwrap();
         let target = validate_terminal_target(&root, Some(&selected_path)).unwrap();
         let state = WorkspaceState::default();
         let epoch = state.replace_workspace_root(root.clone());
@@ -1198,8 +1204,8 @@ mod tests {
     fn terminal_launch_snapshot_rejects_workspace_switches_and_epoch_aba() {
         let first = TempDir::new().unwrap();
         let second = TempDir::new().unwrap();
-        let first_root = first.path().canonicalize().unwrap();
-        let second_root = second.path().canonicalize().unwrap();
+        let first_root = dunce::canonicalize(first.path()).unwrap();
+        let second_root = dunce::canonicalize(second.path()).unwrap();
         let state = WorkspaceState::default();
         let first_epoch = state.replace_workspace_root(first_root.clone());
         let (snapshotted_root, snapshotted_epoch) = state.workspace_snapshot().unwrap();
@@ -1227,7 +1233,7 @@ mod tests {
     fn guarded_launch_helpers_reject_stale_callbacks_and_hold_the_workspace_read_guard() {
         let first = TempDir::new().unwrap();
         let second = TempDir::new().unwrap();
-        let first_root = first.path().canonicalize().unwrap();
+        let first_root = dunce::canonicalize(first.path()).unwrap();
         let state = WorkspaceState::default();
         let epoch = state.replace_workspace_root(first_root.clone());
 
@@ -1240,7 +1246,7 @@ mod tests {
         .unwrap();
         assert!(terminal_ran.get());
 
-        state.replace_workspace_root(second.path().canonicalize().unwrap());
+        state.replace_workspace_root(dunce::canonicalize(second.path()).unwrap());
         terminal_ran.set(false);
         assert!(matches!(
             with_terminal_launch_snapshot(&state, &first_root, epoch, None, &first_root, || {

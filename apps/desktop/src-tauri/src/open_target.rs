@@ -70,7 +70,7 @@ fn classify(path: &Path) -> Result<PendingOpenPayload, OpenTargetError> {
     let metadata = path.metadata().map_err(OpenTargetError::Io)?;
 
     if metadata.is_dir() {
-        let canonical = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+        let canonical = dunce::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
         return Ok(PendingOpenPayload {
             workspace: Some(canonical.to_string_lossy().to_string()),
             file: None,
@@ -78,7 +78,7 @@ fn classify(path: &Path) -> Result<PendingOpenPayload, OpenTargetError> {
     }
 
     if metadata.is_file() && is_markdown(path) {
-        let canonical_file = path.canonicalize().unwrap_or_else(|_| path.to_path_buf());
+        let canonical_file = dunce::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
         return Ok(PendingOpenPayload {
             workspace: None,
             file: Some(canonical_file.to_string_lossy().to_string()),
@@ -106,7 +106,7 @@ mod tests {
         assert!(payload.file.is_none());
         assert_eq!(
             payload.workspace.unwrap(),
-            dir.path().canonicalize().unwrap().to_string_lossy()
+            dunce::canonicalize(dir.path()).unwrap().to_string_lossy()
         );
     }
 
@@ -123,7 +123,7 @@ mod tests {
         );
         assert_eq!(
             payload.file.unwrap(),
-            file.canonicalize().unwrap().to_string_lossy()
+            dunce::canonicalize(&file).unwrap().to_string_lossy()
         );
     }
 

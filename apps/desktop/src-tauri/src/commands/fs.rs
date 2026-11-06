@@ -563,11 +563,9 @@ fn create_sidebar_entry_with(
     kind: SidebarEntryKind,
     mut create_candidate: impl FnMut(&Path, SidebarEntryKind) -> Result<DirEntry, AppError>,
 ) -> Result<DirEntry, AppError> {
-    let root = workspace_root
-        .canonicalize()
-        .map_err(|error| AppError::Io(error.to_string()))?;
-    let parent = parent_path
-        .canonicalize()
+    let root =
+        dunce::canonicalize(workspace_root).map_err(|error| AppError::Io(error.to_string()))?;
+    let parent = dunce::canonicalize(parent_path)
         .map_err(|_| AppError::NotFound(parent_path.to_string_lossy().to_string()))?;
     if !parent.is_dir() || !parent.starts_with(&root) {
         return Err(AppError::InvalidPath(
@@ -620,16 +618,14 @@ fn create_sidebar_entry_for_snapshot(
     create_sidebar_entry_with(parent_path, workspace_root, kind, |candidate, kind| {
         state
             .with_workspace_snapshot(workspace_root, workspace_epoch, || {
-                let live_root = workspace_root
-                    .canonicalize()
+                let live_root = dunce::canonicalize(workspace_root)
                     .map_err(|error| AppError::Io(error.to_string()))?;
                 if live_root != workspace_root {
                     return Err(AppError::InvalidPath(
                         "Workspace folder changed before the sidebar entry could be created".into(),
                     ));
                 }
-                let live_parent = parent_path
-                    .canonicalize()
+                let live_parent = dunce::canonicalize(parent_path)
                     .map_err(|_| AppError::NotFound(parent_path.to_string_lossy().into_owned()))?;
                 if !live_parent.is_dir() || !live_parent.starts_with(&live_root) {
                     return Err(AppError::InvalidPath(
@@ -1064,10 +1060,10 @@ mod tests {
     fn create_sidebar_entry_rejects_stale_workspace_before_mutation() {
         let workspace = TempDir::new().unwrap();
         let replacement = TempDir::new().unwrap();
-        let root = workspace.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(workspace.path()).unwrap();
         let state = WorkspaceState::default();
         let epoch = state.replace_workspace_root(root.clone());
-        state.replace_workspace_root(replacement.path().canonicalize().unwrap());
+        state.replace_workspace_root(dunce::canonicalize(replacement.path()).unwrap());
 
         assert!(matches!(
             create_sidebar_entry_for_snapshot(&state, &root, &root, epoch, SidebarEntryKind::File,)
@@ -1085,7 +1081,7 @@ mod tests {
         let parent = TempDir::new().unwrap();
         let workspace_path = parent.path().join("workspace");
         fs::create_dir(&workspace_path).unwrap();
-        let root = workspace_path.canonicalize().unwrap();
+        let root = dunce::canonicalize(&workspace_path).unwrap();
         let state = WorkspaceState::default();
         let epoch = state.replace_workspace_root(root.clone());
 

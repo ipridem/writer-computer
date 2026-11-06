@@ -609,7 +609,7 @@ mod tests {
         let first = tempfile::tempdir().unwrap();
         let second = tempfile::tempdir().unwrap();
         let state = WorkspaceState::default();
-        let first_root = first.path().canonicalize().unwrap();
+        let first_root = dunce::canonicalize(first.path()).unwrap();
         let first_epoch = state.replace_workspace_root(first_root.clone());
 
         let ran = std::cell::Cell::new(false);
@@ -621,7 +621,7 @@ mod tests {
         assert_eq!(result, Some(42));
         assert!(ran.get());
 
-        state.replace_workspace_root(second.path().canonicalize().unwrap());
+        state.replace_workspace_root(dunce::canonicalize(second.path()).unwrap());
         ran.set(false);
         assert_eq!(
             state.with_workspace_snapshot(&first_root, first_epoch, || ran.set(true)),
@@ -641,8 +641,8 @@ mod tests {
     fn close_workspace_invalidates_the_snapshot_and_rejects_stale_roots() {
         let first = tempfile::tempdir().unwrap();
         let second = tempfile::tempdir().unwrap();
-        let first_root = first.path().canonicalize().unwrap();
-        let second_root = second.path().canonicalize().unwrap();
+        let first_root = dunce::canonicalize(first.path()).unwrap();
+        let second_root = dunce::canonicalize(second.path()).unwrap();
         let state = WorkspaceState::default();
         let (first_epoch, _, _) = state.transition_to_workspace(first_root.clone());
         state.dirs_with_markdown.write().insert(first_root.clone());

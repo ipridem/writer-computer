@@ -26,6 +26,8 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 notify = { version = "7", features = ["macos_fsevent"] }
 fontdb = "0.23"
+# Canonical paths without the Windows `\\?\` verbatim prefix (plain std on macOS/Linux).
+dunce = "1"
 ignore = "0.4"
 image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
 uuid = { version = "1", features = ["v4"] }

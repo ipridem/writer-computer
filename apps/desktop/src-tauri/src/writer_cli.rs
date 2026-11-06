@@ -381,7 +381,10 @@ mod tests {
 
         let calls = launcher.calls.borrow();
         assert_eq!(calls.len(), 1);
-        assert_eq!(calls[0].as_ref().unwrap(), &target.canonicalize().unwrap());
+        assert_eq!(
+            calls[0].as_ref().unwrap(),
+            &dunce::canonicalize(&target).unwrap()
+        );
     }
 
     #[test]
@@ -394,7 +397,10 @@ mod tests {
         let _ = run(argv(&["writer", "note.md"]), cwd.path(), &launcher);
 
         let calls = launcher.calls.borrow();
-        assert_eq!(calls[0].as_ref().unwrap(), &md.canonicalize().unwrap());
+        assert_eq!(
+            calls[0].as_ref().unwrap(),
+            &dunce::canonicalize(&md).unwrap()
+        );
     }
 
     #[test]

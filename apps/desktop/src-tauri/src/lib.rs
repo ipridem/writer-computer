@@ -112,9 +112,7 @@ pub(crate) fn open_new_workspace_window(
     // (`/var/foo` vs. `/private/var/foo`, symlinked workspaces) don't spawn
     // duplicate windows and the watcher's canonical workspace_root matches
     // the pending-open record.
-    let workspace = raw_workspace
-        .canonicalize()
-        .map_err(|e| AppError::Io(e.to_string()))?;
+    let workspace = dunce::canonicalize(&raw_workspace).map_err(|e| AppError::Io(e.to_string()))?;
     let workspace_str = workspace.to_string_lossy().to_string();
 
     if let Some(existing_label) = app.state::<AppState>().find_by_workspace(&workspace) {
@@ -157,9 +155,7 @@ pub(crate) fn open_standalone_file_window(
 
     // Canonicalize so lookup, pending-open dedupe, and the watcher's path
     // equality all agree (`/var` vs. `/private/var` aliasing).
-    let file = raw
-        .canonicalize()
-        .map_err(|e| AppError::Io(e.to_string()))?;
+    let file = dunce::canonicalize(&raw).map_err(|e| AppError::Io(e.to_string()))?;
 
     if let Some(existing_label) = app.state::<AppState>().find_by_standalone_file(&file) {
         if let Some(window) = app.get_webview_window(&existing_label) {

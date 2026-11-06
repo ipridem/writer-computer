@@ -962,7 +962,7 @@ mod tests {
         // descendant. Before this test existed, the appearing side of a
         // rename was silently no-op'd and search/sidebar drifted from disk.
         let dir = tempfile::TempDir::new().unwrap();
-        let root = dir.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(dir.path()).unwrap();
         let nested = root.join("nested");
         std::fs::create_dir_all(nested.join("deeper")).unwrap();
         std::fs::write(nested.join("a.md"), "# a").unwrap();
@@ -992,7 +992,7 @@ mod tests {
     fn add_subtree_is_idempotent_against_existing_entries() {
         // Re-running over the same directory must not duplicate indexed paths.
         let dir = tempfile::TempDir::new().unwrap();
-        let root = dir.path().canonicalize().unwrap();
+        let root = dunce::canonicalize(dir.path()).unwrap();
         std::fs::write(root.join("a.md"), "# a").unwrap();
 
         let state = WorkspaceState::default();
