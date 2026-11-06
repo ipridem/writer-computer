@@ -1,9 +1,14 @@
 import { useOpenCommandPalette } from "@/hooks/use-command-palette";
-import { modShortcutLabel } from "@/lib/platform";
+import { detectPlatform, modShortcutLabel } from "@/lib/platform";
+
+// Wide tracking suits `⌘N`; spelled-out `Ctrl+N` reads as "C t r l" with it.
+const SHORTCUT_TRACKING = detectPlatform() === "macos" ? "tracking-[0.2em]" : "";
 
 function Shortcut({ children }: { children: string }) {
   return (
-    <kbd className="text-[11px] tracking-[0.2em] text-[var(--text-icon-muted)]">{children}</kbd>
+    <kbd className={`text-[11px] ${SHORTCUT_TRACKING} text-[var(--text-icon-muted)]`}>
+      {children}
+    </kbd>
   );
 }
 
