@@ -331,7 +331,14 @@ fn install_app_menu(
         .item(&window_submenu)
         .build()?;
 
+    // Windows gets no menu bar: its items are macOS conventions (Hide on
+    // Ctrl+H leaves a window with no taskbar button), WebView2 handles the
+    // Edit shortcuts itself, and the frontend binds Ctrl+, to Settings. The
+    // menu is still built so the updater keeps its "Check for Updates…" item.
+    #[cfg(not(target_os = "windows"))]
     app.set_menu(menu)?;
+    #[cfg(target_os = "windows")]
+    drop(menu);
 
     let menu_items = updater::UpdaterMenuItems { check: check_item };
     app.manage(updater::UpdaterManager::new(menu_items, app_data_dir));

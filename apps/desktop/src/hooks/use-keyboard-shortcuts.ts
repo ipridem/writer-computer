@@ -6,6 +6,8 @@ import { toggleSidebar } from "@/hooks/use-sidebar";
 import { resetZoom, zoomIn, zoomOut } from "@/hooks/zoom-api";
 import { getWorkspaceChromeMode } from "@/lib/compact-mode";
 import { closeWindow } from "@/lib/tauri";
+import { detectPlatform } from "@/lib/platform";
+import { openPreferences } from "@/hooks/use-menu-events";
 
 function isEditableTargetFocused(): boolean {
   const active = document.activeElement;
@@ -18,8 +20,26 @@ function isEditableTargetFocused(): boolean {
 
 export function useKeyboardShortcuts() {
   useEffect(() => {
+    const isWindows = detectPlatform() === "windows";
+
     function handleKeyDown(e: KeyboardEvent) {
       const mod = e.metaKey || e.ctrlKey;
+
+      if (isWindows) {
+        // WebView2 keeps its browser shortcuts: F5 / Ctrl+R would reload the
+        // whole app and drop the window's state.
+        if (e.key === "F5" || (e.ctrlKey && e.key.toLowerCase() === "r")) {
+          e.preventDefault();
+          return;
+        }
+        // Ctrl+, — Settings. On macOS this is the native menu's accelerator;
+        // Windows has no menu bar.
+        if (e.ctrlKey && e.key === ",") {
+          e.preventDefault();
+          openPreferences();
+          return;
+        }
+      }
 
       // Read current state at event time
       const { openCommandPalette } = useUIStore.getState();
