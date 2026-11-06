@@ -75,6 +75,18 @@ pub struct IndexedFile {
     pub modified_at: u64,
 }
 
+/// `path` relative to `root` with `/` separators on every platform. The
+/// frontend writes it into markdown links and wiki links, where a Windows `\`
+/// would be read as an escape.
+pub fn relative_slash_path(path: &Path, root: &Path) -> String {
+    let relative = path.strip_prefix(root).unwrap_or(path).to_string_lossy();
+    if cfg!(windows) {
+        relative.replace('\\', "/")
+    } else {
+        relative.into_owned()
+    }
+}
+
 pub type WorkspaceRuntimeDrop = (
     Option<RecommendedWatcher>,
     Vec<IndexedFile>,
@@ -458,6 +470,13 @@ pub fn rebuild_dirs_from_index(files: &[IndexedFile], root: &Path) -> HashSet<Pa
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn relative_slash_path_uses_forward_slashes() {
+        let root = Path::new("notes");
+        let file = root.join("drafts").join("chapter one.md");
+        assert_eq!(relative_slash_path(&file, root), "drafts/chapter one.md");
+    }
 
     #[test]
     fn find_by_workspace_matches_startup_open() {

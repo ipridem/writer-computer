@@ -193,12 +193,7 @@ pub fn index_workspace_impl(
                 if entry.file_type().is_some_and(|ft| ft.is_file())
                     && entry.path().extension().and_then(|e| e.to_str()) == Some("md")
                 {
-                    let rel = entry
-                        .path()
-                        .strip_prefix(&root)
-                        .unwrap_or(entry.path())
-                        .to_string_lossy()
-                        .to_string();
+                    let rel = crate::state::relative_slash_path(entry.path(), &root);
                     results.lock().push(IndexedFile {
                         path: entry.path().to_path_buf(),
                         relative_path: rel,

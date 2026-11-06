@@ -151,11 +151,7 @@ fn add_to_index_with_modified(state: &WorkspaceState, path: &Path, root: &Path, 
         }
         return;
     }
-    let rel = path
-        .strip_prefix(root)
-        .unwrap_or(path)
-        .to_string_lossy()
-        .to_string();
+    let rel = crate::state::relative_slash_path(path, root);
     let name = path
         .file_name()
         .map(|n| n.to_string_lossy().to_string())
@@ -301,12 +297,7 @@ fn prepare_subtree_merge(
         if !paths.insert(file.path.clone()) {
             continue;
         }
-        let relative_path = file
-            .path
-            .strip_prefix(root)
-            .unwrap_or(&file.path)
-            .to_string_lossy()
-            .to_string();
+        let relative_path = crate::state::relative_slash_path(&file.path, root);
         index.push(crate::state::IndexedFile {
             path: file.path,
             relative_path,
