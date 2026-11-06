@@ -295,6 +295,12 @@ export function closeWindow(): Promise<void> {
   return getCurrentWindow().close();
 }
 
+/** Set the native window theme (title bar, Mica backdrop). `async` so a missing
+ *  Tauri runtime surfaces as a rejection rather than a synchronous throw. */
+export async function setNativeWindowTheme(theme: "light" | "dark"): Promise<void> {
+  await getCurrentWindow().setTheme(theme);
+}
+
 // Image commands
 export function saveClipboardImage(
   markdownFilePath: string,

@@ -6,6 +6,8 @@ import {
   type SettingDef,
   type ThemeMode,
 } from "./settings-schema";
+import { detectPlatform } from "./platform";
+import { setNativeWindowTheme } from "./tauri";
 
 export type ThemePreference = "system" | "light" | "dark";
 
@@ -96,6 +98,13 @@ export function applyCssVarBindings(settings: Record<string, unknown>) {
 
 function pushForMode(mode: ThemeMode, settings: Record<string, unknown>) {
   setThemeAttribute(mode === "dark");
+  // Windows draws the title bar and Mica backdrop from the window theme, which
+  // otherwise follows the OS rather than Writer's light/dark choice.
+  if (detectPlatform() === "windows") {
+    setNativeWindowTheme(mode).catch((error) => {
+      console.error("Failed to sync native window theme", error);
+    });
+  }
   applyPrimaries(mode, settings);
 }
 

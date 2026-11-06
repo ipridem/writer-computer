@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-11-06
+
+- On Windows, Writer windows use the native title bar (with the window name and the minimise, maximise and close buttons) and the Mica backdrop, which follows Writer's light or dark setting. The top bar no longer leaves a gap on the left for the macOS window buttons. macOS is unchanged.
+
 ## 2026-10-28
 
 - The docs cover more of the app: [finding your way around a note](https://writer.computer/docs/navigate-a-note/) (the heading outline at the edge of a note, links to headings, find and replace, word counts), [tables, tasks and code](https://writer.computer/docs/tables-tasks-and-code/), [customizing the look](https://writer.computer/docs/customize-the-look/) and [the sidebar](https://writer.computer/docs/sidebar/). The keyboard shortcuts page no longer lists ⌘H, which isn't bound, and says that ⌘O is the same as ⌘P.
