@@ -6,6 +6,7 @@
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
+#[cfg(not(target_os = "windows"))]
 use std::time::Duration;
 use tauri::menu::MenuItem;
 use tauri::{AppHandle, Manager, WebviewWindow, Wry};
@@ -35,6 +36,7 @@ fn with_parent<R: tauri::Runtime>(
     builder
 }
 
+#[cfg(not(target_os = "windows"))] // Windows has no updater (see `lib.rs` setup).
 const DAILY_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 const DISMISSED_VERSION_FILE: &str = "updater-dismissed-version.json";
 
@@ -291,6 +293,7 @@ pub fn start_install(app: AppHandle) {
 
 /// Spawn the background task that runs a check once per day while the app is
 /// open. The initial at-launch check is triggered separately from `setup`.
+#[cfg(not(target_os = "windows"))]
 pub fn spawn_daily_check(app: AppHandle) {
     tauri::async_runtime::spawn(async move {
         let mut interval = tokio::time::interval(DAILY_CHECK_INTERVAL);

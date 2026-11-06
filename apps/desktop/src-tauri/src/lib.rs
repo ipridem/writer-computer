@@ -552,6 +552,10 @@ pub fn run() {
                     .path()
                     .app_data_dir()
                     .expect("failed to get app data dir");
+                // No updater on Windows: the configured endpoint and signing
+                // key are upstream's, whose releases only carry macOS builds.
+                // Windows builds are updated by installing a newer installer.
+                #[cfg(not(target_os = "windows"))]
                 app.handle()
                     .plugin(tauri_plugin_updater::Builder::new().build())?;
                 install_app_menu(app.handle(), config_dir)?;
@@ -560,12 +564,15 @@ pub fn run() {
 
                 // Kick off the launch check once the window is ready to show
                 // any follow-up dialogs on top of a visible app.
-                let handle = app.handle().clone();
-                tauri::async_runtime::spawn(async move {
-                    tokio::time::sleep(std::time::Duration::from_secs(2)).await;
-                    updater::start_check(handle.clone(), false);
-                    updater::spawn_daily_check(handle);
-                });
+                #[cfg(not(target_os = "windows"))]
+                {
+                    let handle = app.handle().clone();
+                    tauri::async_runtime::spawn(async move {
+                        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+                        updater::start_check(handle.clone(), false);
+                        updater::spawn_daily_check(handle);
+                    });
+                }
             }
 
             // Attach drag-drop + close handlers on the main window.

@@ -2,7 +2,7 @@
 
 ## 2026-11-06
 
-- On Windows, Writer windows use the native title bar (with the window name and the minimise, maximise and close buttons) and the Mica backdrop, which follows Writer's light or dark setting. As in other Windows 11 apps, Mica shows through the sidebar and the tab bar while the note sits on its own surface, which still follows the Translucency setting. There is no menu bar on Windows: Ctrl+, opens Settings, and F5 / Ctrl+R no longer reload the window. Shortcut hints read Ctrl+P, Ctrl+N and Ctrl+O instead of ⌘. The top bar no longer leaves a gap on the left for the macOS window buttons. macOS is unchanged.
+- On Windows, Writer windows use the native title bar (with the window name and the minimise, maximise and close buttons) and the Mica backdrop, which follows Writer's light or dark setting. As in other Windows 11 apps, Mica shows through the sidebar and the tab bar while the note sits on its own surface, which still follows the Translucency setting. There is no menu bar on Windows: Ctrl+, opens Settings, and F5 / Ctrl+R no longer reload the window. Shortcut hints read Ctrl+P, Ctrl+N and Ctrl+O instead of ⌘. Windows builds do not check for updates; install a newer installer to update. The top bar no longer leaves a gap on the left for the macOS window buttons. macOS is unchanged.
 
 ## 2026-10-28
 
