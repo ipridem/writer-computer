@@ -3,6 +3,7 @@ import { Search01Icon } from "@hugeicons/core-free-icons";
 import { useOpenCommandPalette } from "@/hooks/use-command-palette";
 import { useBooleanSetting } from "@/hooks/use-settings";
 import { ScrollFade } from "@/components/scroll-fade";
+import { detectPlatform, modShortcutLabel } from "@/lib/platform";
 import { SidebarNavigator } from "./sidebar-navigator";
 
 interface FileBrowserProps {
@@ -45,7 +46,13 @@ export function FileBrowser({
             </span>
             Search
             <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-[11px] text-current">
-              ⌘<span className="ml-0.5">P</span>
+              {detectPlatform() === "macos" ? (
+                <>
+                  ⌘<span className="ml-0.5">P</span>
+                </>
+              ) : (
+                modShortcutLabel("P")
+              )}
             </kbd>
           </button>
         </div>

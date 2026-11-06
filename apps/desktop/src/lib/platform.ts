@@ -8,3 +8,8 @@ export function detectPlatform(): Platform {
   if (/Win/i.test(ua)) return "windows";
   return "linux";
 }
+
+/** Display label for a Cmd/Ctrl shortcut: `⌘P` on macOS, `Ctrl+P` elsewhere. */
+export function modShortcutLabel(key: string, platform: Platform = detectPlatform()): string {
+  return platform === "macos" ? `⌘${key}` : `Ctrl+${key}`;
+}
