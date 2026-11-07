@@ -228,3 +228,10 @@ export function resolveImagePath(imageSrc: string, markdownDir: string): string 
   if (isAbsoluteLocalPath(localSrc)) return localSrc;
   return `${markdownDir.replace(/\/$/, "")}/${localSrc}`;
 }
+
+/** An absolute path the way the OS shows it, for copying to the clipboard.
+ * Paths reach the frontend with `/` on every platform; Windows drive paths
+ * get their `\` separators back. Other paths are returned unchanged. */
+export function nativePath(path: string): string {
+  return WINDOWS_ABSOLUTE_PATH.test(path) ? path.split("/").join("\\") : path;
+}

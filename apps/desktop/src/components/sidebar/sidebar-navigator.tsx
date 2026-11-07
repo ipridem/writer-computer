@@ -21,7 +21,7 @@ import {
   useRecentSidebarFiles,
 } from "@/hooks/use-sidebar-files";
 import * as tauri from "@/lib/tauri";
-import { getFileStem, getParentDir, getRelativePath } from "@/lib/paths";
+import { getFileStem, getParentDir, getRelativePath, nativePath } from "@/lib/paths";
 import { duplicateFile } from "./duplicate-file";
 import { useMoveEntry } from "./use-move-entry";
 import { FileTree } from "./file-tree";
@@ -150,7 +150,7 @@ export function SidebarNavigator({
           void writeText(relative);
         },
         onCopyAbsolutePath: () => {
-          void writeText(entry.path);
+          void writeText(nativePath(entry.path));
         },
         onReveal: () => {
           void tauri.revealInFileManager(entry.path).catch((error: unknown) => {

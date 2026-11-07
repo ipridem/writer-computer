@@ -5,11 +5,22 @@ import {
   getFileName,
   getFileStem,
   getRelativePath,
+  nativePath,
   normalizeLocalMarkdownDestination,
   normalizeMarkdownDestination,
   normalizePath,
   resolveLinkTarget,
 } from "../src/lib/paths";
+
+describe("nativePath", () => {
+  test("gives Windows drive paths their backslashes back", () => {
+    expect(nativePath("C:/Users/me/notes/a b.md")).toBe("C:\\Users\\me\\notes\\a b.md");
+  });
+
+  test("leaves POSIX paths unchanged", () => {
+    expect(nativePath("/Users/me/notes/a.md")).toBe("/Users/me/notes/a.md");
+  });
+});
 
 describe("getFileExtension", () => {
   test("returns extension for normal files", async () => {

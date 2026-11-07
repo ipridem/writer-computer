@@ -9,7 +9,7 @@ import {
 } from "@/hooks/editor-api";
 import * as tauri from "@/lib/tauri";
 import { getWorkspaceIdentity, isCurrentWorkspaceIdentity } from "@/hooks/workspace-api";
-import { getParentDir, getRelativePath } from "@/lib/paths";
+import { getParentDir, getRelativePath, nativePath } from "@/lib/paths";
 import { duplicateFile } from "./duplicate-file";
 import { showFileContextMenu } from "./file-context-menu";
 import { showFolderContextMenu } from "./folder-context-menu";
@@ -103,7 +103,7 @@ export function useFileTreeContextMenus({
           void writeText(relative);
         },
         onCopyAbsolutePath: () => {
-          void writeText(entry.path);
+          void writeText(nativePath(entry.path));
         },
         onReveal: () => {
           void tauri.revealInFileManager(entry.path).catch((error: unknown) => {
@@ -165,7 +165,7 @@ export function useFileTreeContextMenus({
           void writeText(relative);
         },
         onCopyAbsolutePath: () => {
-          void writeText(entry.path);
+          void writeText(nativePath(entry.path));
         },
         onOpenInTerminal: createFolderTerminalAction(entry),
         onReveal: () => {
@@ -235,7 +235,7 @@ export function useFileTreeContextMenus({
             void writeText(relatives.join("\n"));
           },
           onCopyAbsolutePaths: () => {
-            void writeText(pathArray.join("\n"));
+            void writeText(pathArray.map(nativePath).join("\n"));
           },
           onDelete: () => {
             void (async () => {
