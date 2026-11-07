@@ -716,11 +716,14 @@ pub fn reveal_in_file_manager_impl(path: &str) -> Result<(), AppError> {
 
     #[cfg(target_os = "windows")]
     {
-        // `explorer /select,<path>` selects the file inside its parent. The
-        // comma must be part of the same argument or Windows parses it as a
-        // separator.
+        // `explorer /select,"<path>"` selects the file inside its parent.
+        // Explorer only accepts backslashes (the frontend sends `/`), and
+        // only understands quotes around the path, not around the whole
+        // argument as `Command::arg` would add for paths with spaces.
+        use std::os::windows::process::CommandExt;
+        let native = target.to_string_lossy().replace('/', "\\");
         std::process::Command::new("explorer")
-            .arg(format!("/select,{}", target.display()))
+            .raw_arg(format!("/select,\"{native}\""))
             .spawn()
             .map_err(|e| AppError::Io(e.to_string()))?;
     }
