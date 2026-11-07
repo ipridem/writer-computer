@@ -173,6 +173,16 @@
   background: transparent;
 }
 
+/* The minifier keeps only the last of `backdrop-filter` and
+   `-webkit-backdrop-filter` in the shared rule below, so the build ships only
+   the WebKit spelling, which WebView2 (Chromium) ignores: the floating cards
+   lose their blur and the note text reads through the command palette.
+   Declare the standard property on its own here so it survives. */
+:root[data-platform="windows"] .surface-card,
+:root[data-platform="windows"] [cmdk-dialog] {
+  backdrop-filter: blur(16px);
+}
+
 /* Light mode: settings/theme cards rely on their border alone — a tinted fill
    reads as a heavy block on a light surface. Inputs also need a lighter fill
    since dark-on-light overlays read denser than light-on-dark at the same
