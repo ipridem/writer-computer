@@ -86,8 +86,17 @@ Click **Publish release**. Until you do, the in-app updater won't see the new ve
 - **You decide not to publish the draft.** Delete the draft on GitHub, then drop the tag: `git tag -d v<version> && git push origin :refs/tags/v<version>`.
 - **You realize mid-release that the version was wrong.** Stop. Revert is risky once the GH release exists. Ask the user before taking any destructive action.
 
+## Windows build
+
+Windows installers are built separately from the macOS release; `distribute.sh` does not build or upload them, and the in-app updater is off on Windows (`tauri.windows.conf.json` sets `createUpdaterArtifacts: false` and `lib.rs` skips the updater plugin there), so `latest.json` stays macOS-only.
+
+- **Locally, on Windows:** `cd apps/desktop && vp exec tauri build --bundles nsis,msi`. Output is in `apps/desktop/src-tauri/target/release/bundle/nsis/` (per-user `.exe`) and `bundle/msi/` (per-machine `.msi`).
+- **In CI:** `.github/workflows/windows-build.yml` runs on `windows-latest`. A manual run (`workflow_dispatch`) attaches both installers to the run as the `writer-windows` artifact. Pushing a `v*` tag also uploads them to that tag's GitHub release, creating it if needed; the upload step is skipped on `joelbqz/writer-computer`, so it only publishes on forks.
+- The installers are unsigned (SmartScreen warns on first run) and are built without `WRITER_POSTHOG_KEY`, so telemetry is compiled out.
+- The bundle reuses the version from `tauri.conf.json`, so bump it as in Step 1 before tagging.
+
 ## What this doc deliberately does not cover
 
-- Cross-platform releases (Windows, Linux, x86_64 macOS). The script and config are arm64-only today.
-- CI-driven releases. There is no GitHub Actions workflow for this — everything runs on the maintainer's machine because of the Apple signing requirement.
+- Linux and x86_64 macOS releases. The script and config are arm64-only today; Windows is covered above.
+- CI-driven macOS releases. The macOS release runs on the maintainer's machine because of the Apple signing requirement; the only workflow is the Windows build above.
 - Rolling back a published release. There is no documented rollback procedure; if you need one, escalate to the user.

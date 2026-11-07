@@ -4,6 +4,10 @@
 
 Every keyboard shortcut in Writer Computer. On macOS, Cmd is ⌘, Alt is ⌥ (Option) and Ctrl is ⌃.
 
+On Windows, press Ctrl wherever this page says Cmd (Ctrl+P, Ctrl+N, Ctrl+, and so on); shortcuts that already use Ctrl, such as Ctrl+Tab, are the same. Ctrl+W on the last empty tab closes the window, and closing the last window quits Writer. Windows has no menu bar, so Ctrl+, is handled by the app itself, and F5 and Ctrl+R do nothing instead of reloading the window.
+
+<!-- Windows: the JS handler treats metaKey or ctrlKey as the modifier (see `use-keyboard-shortcuts.ts`), and adds Ctrl+, plus the F5 / Ctrl+R guard because the native menu is not attached there. -->
+
 ## Global
 
 These work anywhere in the window, whether or not you are typing in a note.

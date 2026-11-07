@@ -46,6 +46,46 @@ cargo clippy
 cargo fmt --check
 ```
 
+## Windows
+
+This fork also builds for Windows 10 and 11. The Windows build uses the native
+title bar with the Mica backdrop, Ctrl instead of Cmd for every shortcut, and
+no menu bar (Ctrl+, opens Settings). It does not auto-update; install a newer
+installer to update.
+
+Prerequisites:
+
+- [Rust](https://rustup.rs) with the MSVC toolchain (`stable-x86_64-pc-windows-msvc`).
+- Microsoft C++ Build Tools ("Desktop development with C++").
+- WebView2 runtime (already installed on Windows 10 and 11).
+- Node.js 22.12 or newer, and `vp`.
+
+Run it in development:
+
+```bash
+vp install
+vp dev
+```
+
+Build the installers:
+
+```bash
+cd apps/desktop
+vp exec tauri build --bundles nsis,msi
+```
+
+The installers land in `apps/desktop/src-tauri/target/release/bundle/`: the
+NSIS `nsis/Writer_<version>_x64-setup.exe` installs for the current user
+without admin rights, and `msi/Writer_<version>_x64_en-US.msi` installs for all
+users. The `Windows build` GitHub Actions workflow builds the same installers on
+manual runs and on `v*` tags (see `docs/releasing.md`).
+
+The installers are not code-signed, so Windows SmartScreen shows "Windows
+protected your PC" the first time you run one. Choose **More info**, then
+**Run anyway**. After installing, Writer shows up under "Open with" for `.md`
+and `.markdown` files; Windows keeps your current default app until you change
+it.
+
 ## Privacy
 
 Writer is local-first and stays that way. It ships opt-in usage telemetry that
@@ -56,4 +96,4 @@ the three independent ways to keep it off.
 
 ## Releases
 
-macOS releases are cut locally with `scripts/distribute.sh`. See `docs/releasing.md` for the signed, notarized release workflow and updater publishing details.
+macOS releases are cut locally with `scripts/distribute.sh`. See `docs/releasing.md` for the signed, notarized release workflow and updater publishing details, and for the Windows build.
