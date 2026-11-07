@@ -515,7 +515,7 @@ pub fn start_watcher(
                     };
 
                     let payload = FileChangeEvent {
-                        path: crate::state::ipc_path(&path),
+                        path: crate::state::ipc_path(path),
                         kind: kind_str.to_string(),
                         workspace: Some(WorkspaceIdentity {
                             root: crate::state::ipc_path(&watched_root),
@@ -646,7 +646,7 @@ pub fn start_watcher(
                         if let Some(parent) = path.parent() {
                             wlog!("emit fs:directory-changed (parent) {}", parent.display());
                             let parent_payload = FileChangeEvent {
-                                path: crate::state::ipc_path(&parent),
+                                path: crate::state::ipc_path(parent),
                                 kind: "modified".to_string(),
                                 workspace: Some(WorkspaceIdentity {
                                     root: crate::state::ipc_path(&watched_root),
@@ -765,7 +765,7 @@ pub fn start_file_watcher(
                         label.clone(),
                         "fs:file-changed",
                         &FileChangeEvent {
-                            path: crate::state::ipc_path(&path),
+                            path: crate::state::ipc_path(path),
                             kind: kind_str.to_string(),
                             workspace: None,
                         },
