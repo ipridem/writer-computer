@@ -14,9 +14,6 @@ on:
   workflow_dispatch:
   push:
     tags: ["v*"]
-    # TEMPORARY: lets the workflow run before it is on the default branch
-    # (workflow_dispatch only works from there). Remove before any upstream PR.
-    branches: [windows-support]
 
 permissions:
   contents: write
