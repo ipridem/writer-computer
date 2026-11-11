@@ -53,6 +53,9 @@ title bar with the Mica backdrop, Ctrl instead of Cmd for every shortcut, and
 no menu bar (Ctrl+, opens Settings). It does not auto-update; install a newer
 installer to update.
 
+Download the Windows installer from this fork's
+[Releases page](https://github.com/ipridem/writer-computer/releases).
+
 Prerequisites:
 
 - [Rust](https://rustup.rs) with the MSVC toolchain (`stable-x86_64-pc-windows-msvc`).
