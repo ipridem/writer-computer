@@ -59,7 +59,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --title "$TAG" --notes "Windows build of $TAG (unsigned)."
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --prerelease --title "$TAG" --notes "Windows build of $TAG. Use the -setup.exe to install for your user account without admin rights, or the .msi to install for all users. The installers are not code-signed, so Windows SmartScreen warns on first run: choose More info, then Run anyway. This build does not update itself; install a newer release to update."
           gh release upload "$TAG" --clobber \
             apps/desktop/src-tauri/target/release/bundle/nsis/*.exe \
             apps/desktop/src-tauri/target/release/bundle/msi/*.msi
